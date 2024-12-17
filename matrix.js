@@ -6,7 +6,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // Characters to display (Matrix-like symbols)
-const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+=<>?";
+const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}|;:',.<>?/`~¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬Ω≈ç√∫˜µ≤≥÷";
 const characters = matrixChars.split("");
 
 // Font size and columns
