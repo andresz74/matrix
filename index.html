@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Falling Code</title>
+    <title>Matrix Falling Code with Layered Canvas</title>
     <style>
         body, html {
             margin: 0;
@@ -11,14 +11,23 @@
             overflow: hidden; /* Remove scrollbars */
             background-color: black;
         }
+        /* Stack canvases on top of each other */
         canvas {
-            display: block; /* Remove any space around the canvas */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
             opacity: 0.5;
         }
     </style>
 </head>
 <body>
+    <!-- Background Canvas -->
     <canvas id="matrixCanvas"></canvas>
+    <!-- Foreground Canvas -->
+    <canvas id="overlayCanvas"></canvas>
     <script src="matrix.js"></script>
 </body>
 </html>
