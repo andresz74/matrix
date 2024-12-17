@@ -1,0 +1,45 @@
+# Node.js dependencies (if used in the future)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# macOS system files
+.DS_Store
+
+# Logs
+*.log
+
+# IDEs and editors
+.vscode/
+.idea/
+*.iml
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.pid
+
+# Compiled files
+*.min.js
+*.min.css
+
+# Cache files
+*.cache
+.cache/
+
+# Build artifacts
+dist/
+build/
+output/
+
+# Environment variables
+.env
+.env.local
+
+# Thumbnails
+Thumbs.db
+
+# OS generated files
+ehthumbs.db
+Desktop.ini
