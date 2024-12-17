@@ -1,48 +1,58 @@
-// Background Canvas (Matrix Rain)
-const canvas = document.getElementById('matrixCanvas');
-const ctx = canvas.getContext('2d');
-
 // Overlay Canvas (Second Layer)
 const overlayCanvas = document.getElementById('overlayCanvas');
 const overlayCtx = overlayCanvas.getContext('2d');
 
-// Canvas setup
-canvas.width = overlayCanvas.width = window.innerWidth;
-canvas.height = overlayCanvas.height = window.innerHeight;
+
 
 // Matrix Rain Characters
 const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}|;:',.<>?/`~¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬Ω≈ç√∫˜µ≤≥÷";
 const characters = matrixChars.split("");
 
 const fontSize = 16;
-const columns = Math.floor(canvas.width / fontSize);
-const drops = Array(columns).fill(0);
 
 // Draw Matrix Rain
-const speedFactor = 0.9; // Adjust this value: Lower = slower, Higher = faster
-function drawMatrix() {
-    // Clear background with slight transparency for trailing effect
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function matrixRain(canvasId, speedFactor = 0.9, color = "#0F0", opacity = 0.05) {
+    // Background Canvas (Matrix Rain)
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    // Canvas setup
+    canvas.width = overlayCanvas.width = window.innerWidth;
+    canvas.height = overlayCanvas.height = window.innerHeight;
 
-    ctx.fillStyle = "#0F0"; // Green text
-    ctx.font = `${fontSize}px monospace`;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(0);
 
-    for (let i = 0; i < drops.length; i++) {
-        const text = characters[Math.floor(Math.random() * characters.length)];
-        const x = i * fontSize;
-        const y = drops[i] * fontSize;
+    function drawMatrix() {
+        // Clear background with slight transparency for trailing effect
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillText(text, x, y);
+        ctx.fillStyle = color; // Green text
+        ctx.font = `${fontSize}px monospace`;
 
-        if (y > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0; // Reset to top
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters[Math.floor(Math.random() * characters.length)];
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            ctx.fillText(text, x, y);
+
+            if (y > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0; // Reset to top
+            }
+
+            drops[i] += speedFactor; // Increment the position by the speed factor
         }
 
-        drops[i] += speedFactor; // Increment the position by the speed factor
+        requestAnimationFrame(drawMatrix);
     }
+    // Handle window resize
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
 
-    requestAnimationFrame(drawMatrix);
+    drawMatrix();
 }
 
 // Draw Overlay Layer
@@ -62,14 +72,14 @@ function drawOverlay() {
     }
 
     setTimeout(() => requestAnimationFrame(drawOverlay), 200); // Slow blinking effect
+
+    window.addEventListener('resize', () => {
+        overlayCanvas.width = window.innerWidth;
+        overlayCanvas.height = window.innerHeight;
+    });
 }
 
-// Resize both canvases
-window.addEventListener('resize', () => {
-    canvas.width = overlayCanvas.width = window.innerWidth;
-    canvas.height = overlayCanvas.height = window.innerHeight;
-});
-
 // Start animations
-drawMatrix();
+matrixRain('matrixCanvas1', 0.4, '#0F0', 0.05);
+matrixRain('matrixCanvas2', 0.8, '#0F0', 0.05);
 drawOverlay();

@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Falling Code with Layered Canvas</title>
+    <title>Matrix Falling Code with Multi-Layered Canvases</title>
     <style>
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Remove scrollbars */
+            overflow: hidden;
             background-color: black;
         }
+
         /* Stack canvases on top of each other */
         canvas {
             position: absolute;
@@ -19,15 +22,19 @@
             width: 100%;
             height: 100%;
             display: block;
-            opacity: 0.5;
+            opacity: 0.4;
         }
     </style>
 </head>
+
 <body>
-    <!-- Background Canvas -->
-    <canvas id="matrixCanvas"></canvas>
+    <!-- First Layer -->
+    <canvas id="matrixCanvas1"></canvas>
+    <!-- Second Layer -->
+    <canvas id="matrixCanvas2"></canvas>
     <!-- Foreground Canvas -->
     <canvas id="overlayCanvas"></canvas>
     <script src="matrix.js"></script>
 </body>
+
 </html>
