@@ -22,7 +22,20 @@
             width: 100%;
             height: 100%;
             display: block;
+        }
+
+        .blur {
+            filter: blur(4px);
+            transition: filter 0.5s ease-in-out;
+        }
+
+        .opacity-4 {
+            opacity: 0.4;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .opacity-8 {
             opacity: 0.8;
+            transition: opacity 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -33,9 +46,9 @@
     <!-- Second Layer -->
     <canvas id="matrixCanvas2"></canvas>
     <!-- Third Layer -->
-    <canvas id="matrixCanvas3"></canvas>
+    <canvas id="matrixCanvas3" class="blur opacity-4"></canvas>
     <!-- Foreground Canvas -->
-    <canvas id="overlayCanvas"></canvas>
+    <canvas id="overlayCanvas" class="opacity-8"></canvas>
     <script src="matrix.js"></script>
 </body>
 
