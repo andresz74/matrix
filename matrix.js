@@ -87,6 +87,6 @@ window.addEventListener("resize", () => {
 
 // Start animations
 matrixRain("matrixCanvas1", { speedFactor: 0.3, fontSize: 12});
-matrixRain("matrixCanvas2", { speedFactor: 0.6, fontSize: 16});
-matrixRain("matrixCanvas3", { speedFactor: 0.9, fontSize: 20});
+matrixRain("matrixCanvas2", { speedFactor: 0.9, fontSize: 16});
+matrixRain("matrixCanvas3", { speedFactor: 0.9, fontSize: 16});
 matrixOverlay({ fontSize: 12, blinkSpeed: 400 });
