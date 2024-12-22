@@ -63,7 +63,7 @@ You can customize the following settings in `matrix.js`:
 
 ### 🌟 **Preview Screenshot**
 
-![Matrix Code Effect](https://zenteno.org/public_assets/matrix-rain-2.gif)
+![Matrix Code Effect](https://zenteno.org/public_assets/matrix-rain-2.png)
 
 ---
 
@@ -82,5 +82,5 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 ### 🔗 **Author**
 
-**Your Name**  
+**Andres Zenteno**  
 GitHub: [@andresz74](https://github.com/andresz74)  
