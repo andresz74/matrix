@@ -1,5 +1,7 @@
 // Matrix Rain Characters
-const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}|;:',.<>?/`~¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬Ω≈ç√∫˜µ≤≥÷アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん一二三四五六七八九十零";
+const latinChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}|;:',.<>?/`~¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬Ω≈ç√∫˜µ≤≥÷";
+const japaneseChars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん一二三四五六七八九十零";
+const matrixChars = latinChars + japaneseChars;
 const characters = matrixChars.split("");
 
 
@@ -118,10 +120,10 @@ function toggleBlurWithAnimation(canvasId, interval = 1000) {
 }
 
 // Start animations
-matrixRain("matrixCanvas1", { speedFactor: 0.3, fontSize: 12, delayFactor: 1 });  // Faster updates
-matrixRain("matrixCanvas2", { speedFactor: 0.9, fontSize: 16, delayFactor: 3 }); // Balanced speed
-matrixRain("matrixCanvas3", { speedFactor: 0.9, fontSize: 16, delayFactor: 9 }); // Slower, dramatic effect
+matrixRain("matrixCanvas1", { speedFactor: 0.9, fontSize: 8, delayFactor: 1 });  // Faster updates
+matrixRain("matrixCanvas2", { speedFactor: 0.6, fontSize: 12, delayFactor: 6 }); // Balanced speed
+matrixRain("matrixCanvas3", { speedFactor: 0.8, fontSize: 12, delayFactor: 4 }); // Slower, dramatic effect
 
-matrixOverlay("overlayCanvas", { fontSize: 16, blinkSpeed: 400 });
+matrixOverlay("overlayCanvas", { fontSize: 12, blinkSpeed: 400 });
 // Call the function to toggle blur
 toggleBlurWithAnimation("overlayCanvas", 3000); // Toggle blur every 1 second
