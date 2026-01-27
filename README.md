@@ -1,11 +1,11 @@
 # Matrix Falling Code Effect 🌌
 
-This project recreates the **Matrix-style falling code effect** using **HTML**, **CSS**, and **JavaScript**. No images or external libraries are used—just pure web technologies!
+This project recreates the **Matrix-style falling code effect** using **HTML**, **CSS**, and **WebGL 2**. The animation runs entirely on the GPU for smooth, high-performance rendering.
 
 ---
 
 ### 🎥 **Demo**
-> Experience the effect live by opening the `index.html` file in any modern browser.
+> Experience the effect live by opening the `index.html` file in any modern browser with WebGL 2 support.
 
 ---
 
@@ -16,8 +16,8 @@ The project contains the following files:
 ```plaintext
 matrix-falling-code/
 │
-├── index.html   # Main HTML file with the <canvas> element
-├── matrix.js    # JavaScript file for the animation logic
+├── index.html   # Main HTML file with the WebGL canvas
+├── matrix.js    # JavaScript file for the WebGL shader animation
 └── README.md    # Project documentation
 ```
 
@@ -43,11 +43,9 @@ Follow these steps to run the project locally:
 
 ### 🛠️ **How It Works**
 
-1. A `<canvas>` element is used to render characters dynamically.
-2. The **JavaScript** file (`matrix.js`) generates random characters and animates their fall using:
-   - Green text with a trailing effect.
-   - A smooth animation loop using `requestAnimationFrame`.
-3. The **CSS** ensures a black background and full-screen canvas.
+1. A single `<canvas>` element is used for rendering.
+2. A **WebGL 2 fragment shader** generates falling glyphs, trails, and head glow entirely on the GPU.
+3. The JavaScript file (`matrix.js`) handles resize events, animation timing, and pause controls.
 
 ---
 
@@ -55,9 +53,9 @@ Follow these steps to run the project locally:
 
 You can customize the following settings in `matrix.js`:
 
-- **Characters**: Modify the `matrixChars` string to use different symbols.
-- **Font Size**: Adjust the `fontSize` variable to increase or decrease the text size.
-- **Speed**: Change the drop speed by tweaking the `Math.random()` threshold.
+- **Glyph density**: Adjust the `columns` and `cellRows` values in the shader.
+- **Speed**: Update the `speed` mix range in the shader for faster or slower rain.
+- **Color**: Modify the `color` vector in the fragment shader.
 
 ---
 
@@ -83,4 +81,4 @@ This project is open-source and available under the [MIT License](LICENSE).
 ### 🔗 **Author**
 
 **Andres Zenteno**  
-GitHub: [@andresz74](https://github.com/andresz74)  
+GitHub: [@andresz74](https://github.com/andresz74)
