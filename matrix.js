@@ -5,28 +5,83 @@ const matrixChars = latinChars + japaneseChars;
 const characters = matrixChars.split("");
 
 
-// Utility: Set canvas dimensions to window size
-function resizeCanvas(canvas) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+const animationState = {
+    paused: false,
+};
+
+function togglePause() {
+    animationState.paused = !animationState.paused;
+}
+
+function isPaused() {
+    return animationState.paused;
+}
+
+// Utility: Set canvas dimensions to window size with devicePixelRatio support
+function resizeCanvas(canvas, ctx = canvas.getContext("2d")) {
+    const { width, height } = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    return { width, height };
 }
 
 // Matrix Rain Animation
-function matrixRain(canvasId, { speedFactor = 0.9, color = "#0F0", opacity = 0.05, fontSize = 16, delayFactor = 2 }) {
+function matrixRain(
+    canvasId,
+    {
+        speedFactor = 0.9,
+        color = "#0F0",
+        opacity = 0.05,
+        fontSize = 16,
+        delayFactor = 2,
+        fps = 30,
+    },
+) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext("2d");
 
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    let columns = 0;
+    let drops = [];
+    let delays = [];
+
+    const updateCanvasMetrics = () => {
+        const { width, height } = resizeCanvas(canvas, ctx);
+        canvasWidth = width;
+        canvasHeight = height;
+        columns = Math.floor(canvasWidth / fontSize);
+        drops = new Array(columns).fill(0);
+        delays = new Array(columns).fill(0); // Delay timers for each column
+    };
+
     // Set initial canvas size
-    resizeCanvas(canvas);
+    updateCanvasMetrics();
+    window.addEventListener("resize", updateCanvasMetrics);
 
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = new Array(columns).fill(0);
-    const delays = new Array(columns).fill(0); // Delay timers for each column
+    const frameInterval = 1000 / fps;
+    let lastFrameTime = 0;
 
-    const drawMatrix = () => {
+    const drawMatrix = (timestamp) => {
+        if (isPaused()) {
+            requestAnimationFrame(drawMatrix);
+            return;
+        }
+
+        if (timestamp - lastFrameTime < frameInterval) {
+            requestAnimationFrame(drawMatrix);
+            return;
+        }
+        lastFrameTime = timestamp;
+
         // Clear the canvas with a trailing effect
         ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Set text style
         ctx.fillStyle = color;
@@ -48,7 +103,7 @@ function matrixRain(canvasId, { speedFactor = 0.9, color = "#0F0", opacity = 0.0
             }
 
             // Reset drop to the top randomly
-            if (y > canvas.height && Math.random() > 0.975) {
+            if (y > canvasHeight && Math.random() > 0.975) {
                 drops[i] = 0; // Reset to the top
             }
         }
@@ -63,38 +118,69 @@ function matrixRain(canvasId, { speedFactor = 0.9, color = "#0F0", opacity = 0.0
 
 
 // Matrix Overlay Animation
-function matrixOverlay(canvasId, { fontSize = 16, color = "rgba(255, 255, 255, 0.8)", blinkSpeed = 400 }) {
+function matrixOverlay(
+    canvasId,
+    {
+        fontSize = 16,
+        color = "rgba(255, 255, 255, 0.8)",
+        blinkSpeed = 400,
+        fps = 20,
+    },
+) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext("2d");
 
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+
+    const updateCanvasMetrics = () => {
+        const { width, height } = resizeCanvas(canvas, ctx);
+        canvasWidth = width;
+        canvasHeight = height;
+    };
+
     // Set initial canvas size
-    resizeCanvas(canvas);
+    updateCanvasMetrics();
+    window.addEventListener("resize", updateCanvasMetrics);
 
-    const drawOverlay = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = color;
-        ctx.font = `${fontSize}px monospace`;
+    const frameInterval = 1000 / fps;
+    let lastFrameTime = 0;
+    let lastBlinkTime = 0;
 
-        // Draw random characters at random positions
-        for (let i = 0; i < 10; i++) {
-            const text = characters[Math.floor(Math.random() * characters.length)];
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-
-            ctx.fillText(text, x, y);
+    const drawOverlay = (timestamp) => {
+        if (isPaused()) {
+            requestAnimationFrame(drawOverlay);
+            return;
         }
 
-        setTimeout(() => requestAnimationFrame(drawOverlay), blinkSpeed);
+        if (timestamp - lastFrameTime < frameInterval) {
+            requestAnimationFrame(drawOverlay);
+            return;
+        }
+        lastFrameTime = timestamp;
+
+        if (timestamp - lastBlinkTime >= blinkSpeed) {
+            lastBlinkTime = timestamp;
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            ctx.fillStyle = color;
+            ctx.font = `${fontSize}px monospace`;
+
+            // Draw random characters at random positions
+            for (let i = 0; i < 10; i++) {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                const x = Math.random() * canvasWidth;
+                const y = Math.random() * canvasHeight;
+
+                ctx.fillText(text, x, y);
+            }
+        }
+
+        requestAnimationFrame(drawOverlay);
     };
 
     drawOverlay();
     return canvas;
 }
-
-// Resize all canvases on window resize
-window.addEventListener("resize", () => {
-    document.querySelectorAll("canvas").forEach(resizeCanvas);
-});
 
 function toggleBlurWithAnimation(canvasId, interval = 1000) {
     const canvas = document.getElementById(canvasId);
@@ -102,6 +188,11 @@ function toggleBlurWithAnimation(canvasId, interval = 1000) {
     let isBlurred = false;
 
     const toggleBlur = (timestamp) => {
+        if (isPaused()) {
+            requestAnimationFrame(toggleBlur);
+            return;
+        }
+
         // Check if enough time has passed since the last toggle
         if (timestamp - lastTime >= interval) {
             lastTime = timestamp; // Update the last toggle time
@@ -119,11 +210,23 @@ function toggleBlurWithAnimation(canvasId, interval = 1000) {
     requestAnimationFrame(toggleBlur); // Start the animation
 }
 
-// Start animations
-matrixRain("matrixCanvas1", { speedFactor: 0.9, fontSize: 8, delayFactor: 1 });  // Faster updates
-matrixRain("matrixCanvas2", { speedFactor: 0.6, fontSize: 12, delayFactor: 6 }); // Balanced speed
-matrixRain("matrixCanvas3", { speedFactor: 0.8, fontSize: 12, delayFactor: 4 }); // Slower, dramatic effect
+window.addEventListener("keydown", (event) => {
+    const key = event.key?.toLowerCase();
+    if (event.code === "Space" || key === "p") {
+        event.preventDefault();
+        togglePause();
+    }
+});
 
-matrixOverlay("overlayCanvas", { fontSize: 12, blinkSpeed: 400 });
+window.addEventListener("click", () => {
+    togglePause();
+});
+
+// Start animations
+matrixRain("matrixCanvas1", { speedFactor: 0.9, fontSize: 8, delayFactor: 1, fps: 30 });  // Faster updates
+matrixRain("matrixCanvas2", { speedFactor: 0.6, fontSize: 12, delayFactor: 6, fps: 30 }); // Balanced speed
+matrixRain("matrixCanvas3", { speedFactor: 0.8, fontSize: 12, delayFactor: 4, fps: 24 }); // Slower, dramatic effect
+
+matrixOverlay("overlayCanvas", { fontSize: 12, blinkSpeed: 400, fps: 15 });
 // Call the function to toggle blur
-toggleBlurWithAnimation("overlayCanvas", 3000); // Toggle blur every 1 second
+toggleBlurWithAnimation("overlayCanvas", 3000); // Toggle blur every 3 seconds
