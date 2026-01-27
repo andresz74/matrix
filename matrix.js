@@ -67,17 +67,11 @@ float glyphAlpha(vec2 cellUv, float glyphIndex) {
     return texture(u_glyphAtlas, atlasUv).r;
 }
 
-void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution;
-    float aspect = u_resolution.x / u_resolution.y;
-    vec2 centered = vec2(uv.x * aspect, uv.y);
-
-    float columns = 80.0;
-    float rows = 60.0;
+float layerRain(vec2 centered, float columns, float rows, float speedMin, float speedMax, float intensity, float seedOffset) {
     float columnIndex = floor(centered.x * columns);
-    float columnSeed = hash(columnIndex);
-    float speed = mix(0.3, 1.3, columnSeed);
-    float trail = mix(0.2, 0.8, hash(columnIndex + 42.0));
+    float columnSeed = hash(columnIndex + seedOffset);
+    float speed = mix(speedMin, speedMax, columnSeed);
+    float trail = mix(0.2, 0.8, hash(columnIndex + 42.0 + seedOffset));
 
     float flow = fract(u_time * speed + columnSeed);
     float rowPosition = fract(centered.y + flow);
@@ -85,14 +79,30 @@ void main() {
     float head = smoothstep(0.0, 0.1, rowPosition) * smoothstep(1.0, 0.85, rowPosition);
 
     vec2 cellUv = vec2(fract(centered.x * columns), fract(centered.y * rows));
-    float cellId = floor(centered.y * rows) + columnIndex * 131.0;
+    float cellId = floor(centered.y * rows) + columnIndex * 131.0 + seedOffset * 17.0;
     float glyphIndex = floor(hash(cellId) * u_glyphCount);
     float glyph = glyphAlpha(cellUv, glyphIndex);
 
     float tail = pow(1.0 - rowPosition, 2.0) * trail;
     float brightness = max(head, tail) * glyph;
 
-    vec3 color = vec3(0.0, 0.9, 0.2) * brightness;
+    return brightness * intensity;
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution;
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 centered = vec2(uv.x * aspect, uv.y);
+
+    float farLayer = layerRain(centered * vec2(1.03, 1.0), 100.0, 80.0, 0.2, 0.8, 0.45, 19.0);
+    float midLayer = layerRain(centered * vec2(1.01, 1.0), 85.0, 65.0, 0.4, 1.1, 0.65, 7.0);
+    float nearLayer = layerRain(centered, 70.0, 50.0, 0.6, 1.6, 1.0, 0.0);
+
+    vec3 farColor = vec3(0.0, 0.6, 0.15) * farLayer;
+    vec3 midColor = vec3(0.0, 0.8, 0.2) * midLayer;
+    vec3 nearColor = vec3(0.0, 0.95, 0.25) * nearLayer;
+
+    vec3 color = farColor + midColor + nearColor;
     outColor = vec4(color, 1.0);
 }`;
 

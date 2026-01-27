@@ -44,7 +44,7 @@ Follow these steps to run the project locally:
 ### 🛠️ **How It Works**
 
 1. A single `<canvas>` element is used for rendering.
-2. A **WebGL 2 fragment shader** generates falling glyphs, trails, and head glow entirely on the GPU.
+2. A **WebGL 2 fragment shader** generates falling glyphs, trails, and head glow entirely on the GPU with multiple depth layers.
 3. The JavaScript file (`matrix.js`) handles resize events, animation timing, and pause controls.
 
 ---
@@ -53,7 +53,7 @@ Follow these steps to run the project locally:
 
 You can customize the following settings in `matrix.js`:
 
-- **Glyph density**: Adjust the `columns` and `rows` values in the shader.
+- **Glyph density**: Adjust the `columns` and `rows` values in the shader for each depth layer.
 - **Speed**: Update the `speed` mix range in the shader for faster or slower rain.
 - **Color**: Modify the `color` vector in the fragment shader.
 
