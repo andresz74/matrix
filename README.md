@@ -1,6 +1,6 @@
 # Matrix Falling Code Effect 🌌
 
-This project recreates the **Matrix-style falling code effect** using **HTML**, **CSS**, and **WebGL 2**. The animation runs entirely on the GPU for smooth, high-performance rendering.
+This project recreates the **Matrix-style falling code effect** using **HTML**, **CSS**, and **WebGL 2**. The animation runs entirely on the GPU for smooth, high-performance rendering while preserving the original Latin + Japanese glyph set.
 
 ---
 
@@ -53,7 +53,7 @@ Follow these steps to run the project locally:
 
 You can customize the following settings in `matrix.js`:
 
-- **Glyph density**: Adjust the `columns` and `cellRows` values in the shader.
+- **Glyph density**: Adjust the `columns` and `rows` values in the shader.
 - **Speed**: Update the `speed` mix range in the shader for faster or slower rain.
 - **Color**: Modify the `color` vector in the fragment shader.
 

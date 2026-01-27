@@ -9,6 +9,12 @@ if (!gl) {
     throw new Error("WebGL2 not supported");
 }
 
+// Matrix Rain Characters
+const latinChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_=+[]{}|;:',.<>?/`~¡™£¢∞§¶•ªº–≠œ∑´®†¥¨ˆøπ“‘åß∂ƒ©˙∆˚¬Ω≈ç√∫˜µ≤≥÷";
+const japaneseChars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん一二三四五六七八九十零";
+const matrixChars = latinChars + japaneseChars;
+const characters = matrixChars.split("");
+
 const animationState = {
     paused: false,
     pauseOffset: 0,
@@ -40,6 +46,9 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform sampler2D u_glyphAtlas;
+uniform vec2 u_atlasGrid;
+uniform float u_glyphCount;
 
 out vec4 outColor;
 
@@ -51,12 +60,11 @@ float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-float glyph(vec2 cellUv, float seed) {
-    vec2 grid = floor(cellUv * vec2(5.0, 7.0));
-    float index = grid.x + grid.y * 5.0;
-    float bit = step(0.5, hash(vec2(index, seed)));
-    float edge = smoothstep(0.0, 0.08, min(min(cellUv.x, cellUv.y), min(1.0 - cellUv.x, 1.0 - cellUv.y)));
-    return bit * edge;
+float glyphAlpha(vec2 cellUv, float glyphIndex) {
+    float col = mod(glyphIndex, u_atlasGrid.x);
+    float row = floor(glyphIndex / u_atlasGrid.x);
+    vec2 atlasUv = (vec2(col, row) + cellUv) / u_atlasGrid;
+    return texture(u_glyphAtlas, atlasUv).r;
 }
 
 void main() {
@@ -65,6 +73,7 @@ void main() {
     vec2 centered = vec2(uv.x * aspect, uv.y);
 
     float columns = 80.0;
+    float rows = 60.0;
     float columnIndex = floor(centered.x * columns);
     float columnSeed = hash(columnIndex);
     float speed = mix(0.3, 1.3, columnSeed);
@@ -75,13 +84,13 @@ void main() {
 
     float head = smoothstep(0.0, 0.1, rowPosition) * smoothstep(1.0, 0.85, rowPosition);
 
-    float cellRows = 60.0;
-    vec2 cellUv = vec2(fract(centered.x * columns), fract(centered.y * cellRows));
-    float cellId = floor(centered.y * cellRows) + columnIndex * 131.0;
-    float glyphVal = glyph(cellUv, cellId);
+    vec2 cellUv = vec2(fract(centered.x * columns), fract(centered.y * rows));
+    float cellId = floor(centered.y * rows) + columnIndex * 131.0;
+    float glyphIndex = floor(hash(cellId) * u_glyphCount);
+    float glyph = glyphAlpha(cellUv, glyphIndex);
 
     float tail = pow(1.0 - rowPosition, 2.0) * trail;
-    float brightness = max(head, tail) * glyphVal;
+    float brightness = max(head, tail) * glyph;
 
     vec3 color = vec3(0.0, 0.9, 0.2) * brightness;
     outColor = vec4(color, 1.0);
@@ -112,6 +121,37 @@ function createProgram(vertex, fragment) {
     return program;
 }
 
+function createGlyphAtlas(glyphs) {
+    const glyphSize = 32;
+    const columns = 16;
+    const rows = Math.ceil(glyphs.length / columns);
+    const atlasCanvas = document.createElement("canvas");
+    atlasCanvas.width = columns * glyphSize;
+    atlasCanvas.height = rows * glyphSize;
+
+    const ctx = atlasCanvas.getContext("2d");
+    ctx.clearRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+    ctx.fillStyle = "white";
+    ctx.font = "24px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    glyphs.forEach((glyph, index) => {
+        const x = (index % columns) * glyphSize + glyphSize / 2;
+        const y = Math.floor(index / columns) * glyphSize + glyphSize / 2;
+        ctx.fillText(glyph, x, y);
+    });
+
+    return {
+        canvas: atlasCanvas,
+        columns,
+        rows,
+        glyphCount: glyphs.length,
+    };
+}
+
+const atlas = createGlyphAtlas(characters);
+
 const vertexShader = createShader(gl.VERTEX_SHADER, vertexSource);
 const fragmentShader = createShader(gl.FRAGMENT_SHADER, fragmentSource);
 const program = createProgram(vertexShader, fragmentShader);
@@ -134,6 +174,24 @@ gl.bufferData(
 const positionLocation = gl.getAttribLocation(program, "a_position");
 const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
 const timeLocation = gl.getUniformLocation(program, "u_time");
+const atlasGridLocation = gl.getUniformLocation(program, "u_atlasGrid");
+const glyphCountLocation = gl.getUniformLocation(program, "u_glyphCount");
+const glyphAtlasLocation = gl.getUniformLocation(program, "u_glyphAtlas");
+
+const glyphTexture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
+gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.R8,
+    gl.RED,
+    gl.UNSIGNED_BYTE,
+    atlas.canvas,
+);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
 function resizeCanvas() {
     const { width, height } = canvas.getBoundingClientRect();
@@ -158,6 +216,12 @@ function render(timestamp) {
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+    gl.uniform2f(atlasGridLocation, atlas.columns, atlas.rows);
+    gl.uniform1f(glyphCountLocation, atlas.glyphCount);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
+    gl.uniform1i(glyphAtlasLocation, 0);
 
     const time = (timestamp - animationState.pauseOffset) * 0.001;
     gl.uniform1f(timeLocation, time);
