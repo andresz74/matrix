@@ -108,9 +108,9 @@ void main() {
     float aspect = u_resolution.x / u_resolution.y;
     vec2 centered = vec2(uv.x * aspect, uv.y);
 
-    float farLayer = layerRain(centered * vec2(1.04, 1.0), 120.0, 95.0, 0.2, 0.7, 0.35, 19.0, 0.0);
-    float midLayer = layerRain(centered * vec2(1.02, 1.0), 90.0, 70.0, 0.5, 1.0, 0.65, 7.0, 1.0);
-    float nearLayer = layerRain(centered, 70.0, 50.0, 0.7, 1.8, 1.0, 0.0, 0.0);
+    float farLayer = layerRain(centered * vec2(1.04, 1.0), 120.0, 95.0, 0.08, 0.35, 0.35, 19.0, 0.0);
+    float midLayer = layerRain(centered * vec2(1.02, 1.0), 90.0, 70.0, 0.18, 0.55, 0.65, 7.0, 1.0);
+    float nearLayer = layerRain(centered, 70.0, 50.0, 0.25, 0.8, 1.0, 0.0, 0.0);
 
     vec3 farColor = vec3(0.0, 0.6, 0.15) * farLayer;
     vec3 midColor = vec3(0.0, 0.8, 0.2) * midLayer;
