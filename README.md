@@ -54,6 +54,7 @@ Follow these steps to run the project locally:
 You can customize the following settings in `matrix.js`:
 
 - **Glyph density**: Adjust the `columns` and `rows` values in the shader for each depth layer.
+- **Depth styling**: Tune per-layer `speed` ranges and the `blurStrength` to emphasize foreground vs. background separation.
 - **Speed**: Update the `speed` mix range in the shader for faster or slower rain.
 - **Color**: Modify the `color` vector in the fragment shader.
 

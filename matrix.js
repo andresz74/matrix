@@ -67,7 +67,21 @@ float glyphAlpha(vec2 cellUv, float glyphIndex) {
     return texture(u_glyphAtlas, atlasUv).r;
 }
 
-float layerRain(vec2 centered, float columns, float rows, float speedMin, float speedMax, float intensity, float seedOffset) {
+float glyphAlphaBlur(vec2 cellUv, float glyphIndex, float blurStrength) {
+    if (blurStrength <= 0.0) {
+        return glyphAlpha(cellUv, glyphIndex);
+    }
+    float offset = 0.02 * blurStrength;
+    float base = glyphAlpha(cellUv, glyphIndex) * 0.4;
+    float blur = glyphAlpha(cellUv + vec2(offset, 0.0), glyphIndex);
+    blur += glyphAlpha(cellUv + vec2(-offset, 0.0), glyphIndex);
+    blur += glyphAlpha(cellUv + vec2(0.0, offset), glyphIndex);
+    blur += glyphAlpha(cellUv + vec2(0.0, -offset), glyphIndex);
+    blur = blur * 0.15;
+    return base + blur;
+}
+
+float layerRain(vec2 centered, float columns, float rows, float speedMin, float speedMax, float intensity, float seedOffset, float blurStrength) {
     float columnIndex = floor(centered.x * columns);
     float columnSeed = hash(columnIndex + seedOffset);
     float speed = mix(speedMin, speedMax, columnSeed);
@@ -81,7 +95,7 @@ float layerRain(vec2 centered, float columns, float rows, float speedMin, float 
     vec2 cellUv = vec2(fract(centered.x * columns), fract(centered.y * rows));
     float cellId = floor(centered.y * rows) + columnIndex * 131.0 + seedOffset * 17.0;
     float glyphIndex = floor(hash(cellId) * u_glyphCount);
-    float glyph = glyphAlpha(cellUv, glyphIndex);
+    float glyph = glyphAlphaBlur(cellUv, glyphIndex, blurStrength);
 
     float tail = pow(1.0 - rowPosition, 2.0) * trail;
     float brightness = max(head, tail) * glyph;
@@ -94,9 +108,9 @@ void main() {
     float aspect = u_resolution.x / u_resolution.y;
     vec2 centered = vec2(uv.x * aspect, uv.y);
 
-    float farLayer = layerRain(centered * vec2(1.03, 1.0), 100.0, 80.0, 0.2, 0.8, 0.45, 19.0);
-    float midLayer = layerRain(centered * vec2(1.01, 1.0), 85.0, 65.0, 0.4, 1.1, 0.65, 7.0);
-    float nearLayer = layerRain(centered, 70.0, 50.0, 0.6, 1.6, 1.0, 0.0);
+    float farLayer = layerRain(centered * vec2(1.04, 1.0), 120.0, 95.0, 0.2, 0.7, 0.35, 19.0, 0.0);
+    float midLayer = layerRain(centered * vec2(1.02, 1.0), 90.0, 70.0, 0.5, 1.0, 0.65, 7.0, 1.0);
+    float nearLayer = layerRain(centered, 70.0, 50.0, 0.7, 1.8, 1.0, 0.0, 0.0);
 
     vec3 farColor = vec3(0.0, 0.6, 0.15) * farLayer;
     vec3 midColor = vec3(0.0, 0.8, 0.2) * midLayer;
